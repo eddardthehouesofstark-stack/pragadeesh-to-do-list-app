@@ -8,6 +8,7 @@
  * - Event delegation on parent container
  * - Dynamic DOM rendering, filtering, search, inline editing
  */
+import './index.css';
 
 // ==========================================
 // 1. DATA TYPES & INTERFACES
