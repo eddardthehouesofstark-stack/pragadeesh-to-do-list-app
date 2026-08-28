@@ -1,0 +1,6 @@
+{
+  "name": "To-Do List",
+  "description": "An interactive, state-driven client-side to-do list with local persistence, filtering, and inline editing.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

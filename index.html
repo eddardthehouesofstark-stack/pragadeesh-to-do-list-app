@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>To-Do List • Vanilla JavaScript State & DOM</title>
+    <meta name="description" content="A state-driven vanilla JavaScript To-Do List demonstrating DOM manipulation, event delegation, and localStorage persistence." />
+    <meta property="og:title" content="To-Do List • Vanilla JavaScript State & DOM" />
+    <meta property="og:description" content="A state-driven vanilla JavaScript To-Do List demonstrating DOM manipulation, event delegation, and localStorage persistence." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="stylesheet" href="/src/index.css" />
+  </head>
+  <body class="min-h-full bg-slate-950 text-slate-100 flex flex-col items-center justify-start p-4 sm:p-6 md:p-10 antialiased selection:bg-indigo-600 selection:text-white">
+    <!-- Main Application Card -->
+    <main id="app-container" class="w-full max-w-xl bg-slate-900/90 border border-slate-800/90 rounded-2xl p-5 sm:p-7 shadow-2xl flex flex-col gap-5 my-auto backdrop-blur-sm">
+      <!-- App Header -->
+      <header class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+        <div class="flex items-center gap-3">
+          <div class="p-2.5 bg-indigo-500/10 border border-indigo-500/30 rounded-xl text-indigo-400">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 11 3 3L22 4"></path>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white">To-Do List</h1>
+            <p class="text-xs sm:text-sm text-slate-400">State-driven vanilla JavaScript with localStorage</p>
+          </div>
+        </div>
+        <span class="text-[11px] font-medium tracking-wide uppercase px-2.5 py-1 rounded-full bg-indigo-950/60 text-indigo-300 border border-indigo-800/50">
+          Vanilla JS
+        </span>
+      </header>
+
+      <!-- Create Task Form -->
+      <form id="todo-form" class="flex flex-col sm:flex-row items-stretch gap-2 bg-slate-950/70 p-2 rounded-xl border border-slate-800/90 shadow-inner">
+        <div class="flex-1 flex items-center gap-2 px-2">
+          <input
+            id="todo-input"
+            type="text"
+            placeholder="What needs to be done? (Press '/' to focus)"
+            class="w-full bg-transparent text-slate-100 placeholder-slate-500 text-sm md:text-base outline-none py-1.5"
+            autocomplete="off"
+            required
+          />
+        </div>
+        <button
+          id="todo-add-btn"
+          type="submit"
+          class="flex items-center justify-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-98 text-white text-sm font-semibold rounded-lg transition-all shadow-md shadow-indigo-950/40 cursor-pointer"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>Add</span>
+        </button>
+      </form>
+
+      <!-- Filter Tabs and Search Bar -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <!-- Filter Tabs (Delegated Events) -->
+        <nav id="filter-tabs" class="flex items-center p-1 bg-slate-950/80 rounded-lg border border-slate-800 self-start sm:self-auto" aria-label="Task filters">
+          <button
+            type="button"
+            id="filter-btn-all"
+            data-filter="all"
+            class="filter-tab flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-all text-slate-400 hover:text-slate-200 cursor-pointer"
+          >
+            <span>All</span>
+            <span id="count-all" class="text-[11px] px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-400">0</span>
+          </button>
+          <button
+            type="button"
+            id="filter-btn-active"
+            data-filter="active"
+            class="filter-tab flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-all text-slate-400 hover:text-slate-200 cursor-pointer"
+          >
+            <span>Active</span>
+            <span id="count-active" class="text-[11px] px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-400">0</span>
+          </button>
+          <button
+            type="button"
+            id="filter-btn-completed"
+            data-filter="completed"
+            class="filter-tab flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-all text-slate-400 hover:text-slate-200 cursor-pointer"
+          >
+            <span>Completed</span>
+            <span id="count-completed" class="text-[11px] px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-400">0</span>
+          </button>
+        </nav>
+
+        <!-- Search Input -->
+        <div class="relative flex-1 max-w-full sm:max-w-xs">
+          <svg class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.3-4.3"></path>
+          </svg>
+          <input
+            id="search-input"
+            type="text"
+            placeholder="Search tasks..."
+            class="w-full pl-8 pr-3 py-1.5 bg-slate-950/80 text-slate-200 placeholder-slate-500 text-xs sm:text-sm rounded-lg border border-slate-800 focus:border-slate-700 outline-none transition-colors"
+          />
+        </div>
+      </div>
+
+      <!-- Task List Container with Dynamic List & Empty State -->
+      <div class="relative min-h-[140px] max-h-[420px] overflow-y-auto pr-1">
+        <!-- Delegated Parent UL -->
+        <ul id="todo-list" class="flex flex-col gap-2"></ul>
+
+        <!-- Empty State (Shown when filtered list is empty) -->
+        <div id="empty-state" class="hidden flex-col items-center justify-center text-center p-8 text-slate-500">
+          <div class="p-3 bg-slate-950 rounded-full mb-2 border border-slate-800/80 text-slate-600">
+            <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+              <path d="M9 14h6"></path>
+              <path d="M9 18h6"></path>
+              <path d="M9 10h6"></path>
+            </svg>
+          </div>
+          <p id="empty-state-title" class="text-sm font-medium text-slate-400">No tasks found</p>
+          <p id="empty-state-desc" class="text-xs text-slate-600 mt-1">Add a new task above to get started</p>
+        </div>
+      </div>
+
+      <!-- Stats Bar & Quick Actions Footer -->
+      <div id="stats-bar" class="flex flex-col gap-2.5 pt-3 border-t border-slate-800/80">
+        <div class="flex items-center justify-between text-xs text-slate-400">
+          <div class="flex items-center gap-3">
+            <span id="items-left" class="font-medium text-slate-300">0 items left</span>
+            <button
+              id="toggle-all-btn"
+              type="button"
+              class="text-indigo-400 hover:text-indigo-300 font-medium transition-colors cursor-pointer hidden"
+            >
+              Toggle all
+            </button>
+          </div>
+
+          <button
+            id="clear-completed-btn"
+            type="button"
+            class="flex items-center gap-1 text-slate-400 hover:text-rose-400 font-medium transition-colors cursor-pointer hidden"
+          >
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            <span id="clear-completed-label">Clear completed</span>
+          </button>
+        </div>
+
+        <!-- Progress Bar -->
+        <div id="progress-container" class="hidden items-center gap-2.5">
+          <div class="flex-1 bg-slate-950 h-1.5 rounded-full overflow-hidden border border-slate-800/60">
+            <div id="progress-fill" class="bg-indigo-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+          <span id="progress-text" class="text-[11px] text-slate-500 font-mono w-8 text-right">0%</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- Keyboard shortcut helpers -->
+    <footer class="mt-4 text-xs text-slate-600 flex flex-wrap justify-center items-center gap-3 select-none">
+      <span>Press <kbd class="px-1.5 py-0.5 bg-slate-900 border border-slate-800 rounded text-slate-400">/</kbd> to focus input</span>
+      <span>•</span>
+      <span>Double-click or click ✏️ to edit</span>
+      <span>•</span>
+      <span>Auto-saved to localStorage</span>
+    </footer>
+
+    <!-- Main Vanilla JavaScript Application Entry -->
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
